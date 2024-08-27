@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import GamePage from './components/Game/GamePage.vue'
+import { RouterView } from 'vue-router';
+
 </script>
 
 <template>
-  <GamePage />
+  <RouterView />
 </template>
 
 <style scoped>

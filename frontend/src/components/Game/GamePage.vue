@@ -22,6 +22,7 @@ function handleClick() {
     <p>Clicks: {{ ClickCounter }}</p>
   </div>
 </template>
+
 <style scoped>
 .container {
   display: flex;
