@@ -1,12 +1,15 @@
 <script setup lang="ts">
 import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 
 const username = ref('');
 const email = ref('');
 const password = ref('');
+const router = useRouter();
 
 function handleRegister() {
   console.log('Registering:', { username: username.value, email: email.value, password: password.value });
+  router.push('/login');
 }
 </script>
 

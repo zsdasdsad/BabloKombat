@@ -4,7 +4,7 @@ import GamePage from "../components/Game/GamePage.vue";
 import LoginPage from "../components/Auth/LoginPage.vue";
 
 const routes: Array<RouteRecordRaw> = [
-    {component: MainAuthPage, path: '/'},
+    {component: MainAuthPage, path: '/signup'},
     {component: GamePage, path: '/game'},
     {component: LoginPage, path: '/login'}
 ]

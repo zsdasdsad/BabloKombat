@@ -1,11 +1,18 @@
 <script setup lang="ts">
+import { useRouter } from 'vue-router';
 
+const router = useRouter();
+
+function handleLogin() {
+  console.log('Logging in');
+  router.push('/game');
+}
 </script>
 
 <template>
   <div class="login-container">
     <h1>Log in</h1>
-    <form>
+    <form @submit.prevent="handleLogin">
       <div class="form-group">
         <input type="email" id="email" placeholder="Email" required />
       </div>
@@ -14,7 +21,7 @@
       </div>
       <button type="submit">Log in</button>
     </form>
-    <p>Don't have an account? <RouterLink to="/register">Sign up</RouterLink></p>
+    <p>Don't have an account? <RouterLink to="/signup">Sign up</RouterLink></p>
   </div>
 </template>
 
