@@ -19,7 +19,7 @@ function handleClick() {
     <button @click="handleClick" class="image-button">
       <img :src="image" alt="Clickable Image" class="image">
     </button>
-    <p>Clicks: {{ ClickCounter }}</p>
+    <p>Bablo: {{ ClickCounter }}</p>
   </div>
 </template>
 

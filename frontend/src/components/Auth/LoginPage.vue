@@ -1,11 +1,29 @@
 <script setup lang="ts">
+import axios from 'axios';
+import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 
+const username = ref('');
+const password = ref('');
 const router = useRouter();
 
 function handleLogin() {
-  console.log('Logging in');
-  router.push('/game');
+  console.log('Logging in:', { username: username.value, password: password.value });
+
+  axios.post('http://localhost:3000/db/login', {
+    username: username.value,
+    password: password.value,
+  })
+    .then((response) => {
+      if (response.data.success) {
+        router.push('/game');
+      } else {
+        console.error('Login failed:', response.data.message);
+      }
+    })
+    .catch((error) => {
+      console.error('Error during login:', error);
+    });
 }
 </script>
 
@@ -14,10 +32,10 @@ function handleLogin() {
     <h1>Log in</h1>
     <form @submit.prevent="handleLogin">
       <div class="form-group">
-        <input type="email" id="email" placeholder="Email" required />
+        <input type="username" id="username" placeholder="Username" v-model="username" required />
       </div>
       <div class="form-group">
-        <input type="password" id="password" placeholder="Password" required />
+        <input type="password" id="password" placeholder="Password" v-model="password" required />
       </div>
       <button type="submit">Log in</button>
     </form>

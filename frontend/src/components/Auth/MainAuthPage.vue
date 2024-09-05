@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import axios from 'axios';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 
@@ -9,7 +10,19 @@ const router = useRouter();
 
 function handleRegister() {
   console.log('Registering:', { username: username.value, email: email.value, password: password.value });
-  router.push('/login');
+
+  axios.post('http://localhost:3000/db/create', {
+    username: username.value,
+    email: email.value,
+    password: password.value,
+  })
+    .then((response) => {
+      console.log(response.data);
+      router.push('/login');
+    })
+    .catch((error) => {
+      console.error('Error during registration:', error);
+    });
 }
 </script>
 
