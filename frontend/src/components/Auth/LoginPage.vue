@@ -17,6 +17,8 @@ function handleLogin() {
     .then((response) => {
       if (response.data.success) {
         router.push('/game');
+        const UserId = response.data.userId;
+        localStorage.setItem('UserId', UserId);
       } else {
         console.error('Login failed:', response.data.message);
       }

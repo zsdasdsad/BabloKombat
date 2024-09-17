@@ -1,17 +1,36 @@
 <script setup lang="ts">
 import { ref } from 'vue';
+import axios from "axios";
 
-const image = ref(new URL('../../assets/Default.png', import.meta.url).href);
+const UserId = localStorage.getItem('UserId');
+console.log(UserId);
 const ClickCounter = ref(0)
+const image = ref(new URL('../../assets/Default.png', import.meta.url).href);
 
+axios.post('http://localhost:3000/db/clicks', {userId:UserId}).then((response) => {
+    ClickCounter.value = response.data.bablo;
+});
+
+function handleSave() {
+  axios.post('http://localhost:3000/db/saveBablo', {userId:UserId, bablo: ClickCounter.value}).then((response) => {
+    console.log(response.data);
+    setTimeout(handleSave, 2000)
+  });
+}
+
+const isClicked = ref(false);
 function handleClick() {
+  if (isClicked.value === false) {
+    handleSave();
+    isClicked.value = true;
+  }
   image.value = new URL('../../assets/Clicked.png', import.meta.url).href;
   setTimeout(() => {
     image.value = new URL('../../assets/Default.png', import.meta.url).href;
   }, 100);
   ClickCounter.value++;
-
 }
+
 </script>
 
 <template>
