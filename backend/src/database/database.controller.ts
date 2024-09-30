@@ -1,4 +1,4 @@
-import {Controller, Post, Body, Query} from '@nestjs/common';
+import {Controller, Post, Body, UseGuards, Req} from '@nestjs/common';
 import { DatabaseService } from './database.service';
 
 @Controller('db')
@@ -8,36 +8,21 @@ export class DatabaseController {
   @Post('create')
   async create(@Body() createUserDto: { username: string; email: string; password: string }) {
     const { username, email, password } = createUserDto;
-    return this.databaseService.user.create({
+    const user = await this.databaseService.user.create({
       data: {
         username,
         email,
         password,
       },
     });
-  }
-
-  @Post('login')
-  async login(@Body() loginUserDto: { username: string; password: string }) {
-    const { username, password } = loginUserDto;
-    const user = await this.databaseService.user.findFirst({
-      where: {
-        username
-      }
-    });
-
-    if (user && user.password === password) {
-      return { success: true, message: 'Login successful', userId: user.id };
-    } else {
-      return { success: false, message: 'Invalid username or password' };
-    }
+    return { success: true };
   }
 
   @Post('clicks')
   async getClicks(@Body() body: { userId: string }) {
     const { userId } = body;
     if (!userId) {
-      return { clicks: 1000 };
+      return { clicks: 0 };
     }
 
     const user = await this.databaseService.user.findUnique({

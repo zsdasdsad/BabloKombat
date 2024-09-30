@@ -7,12 +7,12 @@ const ClickCounter = ref(0)
 const image = ref(new URL('../../assets/Default.png', import.meta.url).href);
 console.log(image.value);
 
-axios.post('http://localhost:3000/db/clicks', {userId:UserId}).then((response) => {
+axios.post('http://localhost:3000/user/clicks', {userId:UserId}).then((response) => {
     ClickCounter.value = response.data.bablo;
 });
 
 function handleSave() {
-  axios.post('http://localhost:3000/db/saveBablo', {userId:UserId, bablo: ClickCounter.value}).then((response) => {
+  axios.post('http://localhost:3000/user/saveBablo', {userId:UserId, bablo: ClickCounter.value}).then((response) => {
     setTimeout(handleSave, 2000)
   });
 }

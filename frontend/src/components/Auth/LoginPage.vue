@@ -10,7 +10,7 @@ const router = useRouter();
 function handleLogin() {
   console.log('Logging in:', { username: username.value, password: password.value });
 
-  axios.post('http://localhost:3000/db/login', {
+  axios.post('http://localhost:3000/user/login', {
     username: username.value,
     password: password.value,
   })
