@@ -5,14 +5,14 @@ import axios from "axios";
 const UserId = localStorage.getItem('UserId');
 const ClickCounter = ref(0)
 const image = ref(new URL('../../assets/Default.png', import.meta.url).href);
-console.log(image.value);
+console.log(UserId)
 
-axios.post('http://localhost:3000/user/clicks', {userId:UserId}).then((response) => {
+axios.post('http://localhost:3000/db/clicks', {userId:UserId}).then((response) => {
     ClickCounter.value = response.data.bablo;
 });
 
 function handleSave() {
-  axios.post('http://localhost:3000/user/saveBablo', {userId:UserId, bablo: ClickCounter.value}).then((response) => {
+  axios.post('http://localhost:3000/db/saveBablo', {userId:UserId, bablo: ClickCounter.value}).then((response) => {
     setTimeout(handleSave, 2000)
   });
 }
@@ -39,14 +39,24 @@ onUnmounted(() => {
   document.body.style.overflow = '';
 });
 
+function upgrade(upgrade) {
+  axios.post('http://localhost:3000/db/upgrade', {userId:UserId, upgrade:upgrade}).then((response) => {
+    if (response.data.success === true) {
+      ClickCounter.value = response.data.current_balance;
+    }
+    console.log(response.data);
+  });
+
+}
+
 </script>
 
 <template>
   <div class="grid_container">
     <div class="side_container">
-      <button class="side_button" title="Increases your click x2">Bablo per click</button>
-      <button class="side_button" title="Auto click every 10 second">Auto click</button>
-      <button class="side_button" title="Gives 1/10 of your current balance every 5 minutes">Crypto investment</button>
+      <button @click="upgrade('click')" class="side_button" title="Increases your click x2">Bablo per click</button>
+      <button @click="upgrade('auto')" class="side_button" title="Auto click every 10 second">Auto click</button>
+      <button @click="upgrade('crypto')" class="side_button" title="Gives 1/10 of your current balance every 5 minutes">Crypto investment</button>
     </div>
     <div class="counter_container">
       <p class="counter">Bablo: {{ ClickCounter }}</p>
@@ -57,9 +67,9 @@ onUnmounted(() => {
       </button>
     </div>
     <div class="side_container">
-      <button class="side_button">Manager</button>
-      <button class="side_button">Bank</button>
-      <button class="side_button">Factory</button>
+      <button @click="upgrade('manager')" class="side_button" title="Gives 100 bablo every second">Manager</button>
+      <button @click="upgrade('bank')" class="side_button" title="Gives 1k bablo every second">Bank</button>
+      <button @click="upgrade('factory')" class="side_button" title="Gives 10k bablo every second">Factory</button>
     </div>
   </div>
 </template>

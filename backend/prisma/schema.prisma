@@ -16,4 +16,16 @@ model User {
   username String
   password String
   bablo    Int      @default(0)
+  upgrades upgrades?
+}
+
+model upgrades {
+  userId  String    @unique
+  click   Int       @default(0)
+  auto    Int       @default(0)
+  crypto  Int       @default(0)
+  manager Int       @default(0)
+  bank    Int       @default(0)
+  factory Int       @default(0)
+  user    User      @relation(fields: [userId], references: [id])
 }
