@@ -29,8 +29,8 @@ export class DatabaseController {
     return { success: true };
   }
 
-  @Post('clicks')
-  async getClicks(@Body() body: { userId: string }) {
+  @Post('info')
+  async getInfo(@Body() body: { userId: string }) {
     const { userId } = body;
     if (!userId) {
       return { clicks: 0 };
@@ -41,9 +41,14 @@ export class DatabaseController {
         id: userId,
       },
     });
+    const upgrades = await this.databaseService.upgrades.findUnique({
+        where: {
+            userId: userId,
+        },
+    });
 
     if (user) {
-      return { bablo: user.bablo };
+      return { bablo: user.bablo, upgrades: upgrades };
     } else {
       return { bablo: 0 };
     }
@@ -83,15 +88,6 @@ export class DatabaseController {
     return [user,upgrades];
   }
 
-  @Get('secret')
-  async secret(){
-    const user = await this.databaseService.user.findUnique({
-      where: {id: "cm1tkh3gk0000pqna8nfe98df",}
-    });
-    const bablo = 1000000;
-    await this.databaseService.user.update({where:{id:"cm1tkh3gk0000pqna8nfe98df"},data:{bablo}});
-    return user;
-  }
 
   @Post('upgrade')
   async upgrade(@Body() body: { userId: string; upgrade: string }) {
@@ -127,12 +123,14 @@ export class DatabaseController {
         },
       },
     });
+    const new_cost = UPGRADE_COSTS[`${upgrade}`] * (1 + 0.2 * newLevel)
 
     return {
       success: true,
       old_lvl: currentLevel,
       new_lvl: newLevel,
       current_balance: newBablo,
+      new_cost: new_cost,
     };
   }
 }

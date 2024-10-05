@@ -1,19 +1,43 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted, computed } from 'vue';
 import axios from "axios";
 
 const UserId = localStorage.getItem('UserId');
-const ClickCounter = ref(0)
+const ClickCounter = ref(0);
+const Upgrades = ref({
+  click: { level: 0, cost: 100 },
+  auto: { level: 0, cost: 500 },
+  crypto: { level: 0, cost: 1000 },
+  manager: { level: 0, cost: 10000 },
+  bank: { level: 0, cost: 100000 },
+  factory: { level: 0, cost: 1000000 },
+});
 const image = ref(new URL('../../assets/Default.png', import.meta.url).href);
-console.log(UserId)
 
-axios.post('http://localhost:3000/db/clicks', {userId:UserId}).then((response) => {
-    ClickCounter.value = response.data.bablo;
+function upgradeCostCalculate(upgrade) {
+  return Upgrades.value[upgrade].cost * (1 + Upgrades.value[upgrade].level * 0.2);
+}
+
+axios.post('http://localhost:3000/db/info', { userId: UserId }).then((response) => {
+  ClickCounter.value = response.data.bablo;
+  Upgrades.value.click.level = response.data.upgrades.click;
+  Upgrades.value.auto.level = response.data.upgrades.auto;
+  Upgrades.value.crypto.level = response.data.upgrades.crypto;
+  Upgrades.value.manager.level = response.data.upgrades.manager;
+  Upgrades.value.bank.level = response.data.upgrades.bank;
+  Upgrades.value.factory.level = response.data.upgrades.factory;
+
+  Upgrades.value.click.cost = upgradeCostCalculate('click').toFixed(0);
+  Upgrades.value.auto.cost = upgradeCostCalculate('auto').toFixed(0);
+  Upgrades.value.crypto.cost = upgradeCostCalculate('crypto').toFixed(0);
+  Upgrades.value.manager.cost = upgradeCostCalculate('manager').toFixed(0);
+  Upgrades.value.bank.cost = upgradeCostCalculate('bank').toFixed(0);
+  Upgrades.value.factory.cost = upgradeCostCalculate('factory').toFixed(0);
 });
 
 function handleSave() {
-  axios.post('http://localhost:3000/db/saveBablo', {userId:UserId, bablo: ClickCounter.value}).then((response) => {
-    setTimeout(handleSave, 2000)
+  axios.post('http://localhost:3000/db/saveBablo', { userId: UserId, bablo: ClickCounter.value }).then((response) => {
+    setTimeout(handleSave, 2000);
   });
 }
 
@@ -26,9 +50,26 @@ function handleClick() {
   image.value = new URL('../../assets/Clicked.png', import.meta.url).href;
   setTimeout(() => {
     image.value = new URL('../../assets/Default.png', import.meta.url).href;
-    console.log(image.value);
   }, 100);
   ClickCounter.value++;
+}
+
+function upgrade(upgrade) {
+  axios.post('http://localhost:3000/db/upgrade', { userId: UserId, upgrade: upgrade }).then((response) => {
+    if (response.data.success === true) {
+      ClickCounter.value = response.data.current_balance;
+      Upgrades.value[upgrade].level = response.data.new_lvl;
+      Upgrades.value[upgrade].cost = response.data.new_cost.toFixed(0);
+    } else {
+      const button = document.querySelector(`button[title="${upgrade}"]`);
+      if (button) {
+        button.classList.add('shake');
+        setTimeout(() => {
+          button.classList.remove('shake');
+        }, 500);
+      }
+    }
+  });
 }
 
 onMounted(() => {
@@ -38,25 +79,26 @@ onMounted(() => {
 onUnmounted(() => {
   document.body.style.overflow = '';
 });
-
-function upgrade(upgrade) {
-  axios.post('http://localhost:3000/db/upgrade', {userId:UserId, upgrade:upgrade}).then((response) => {
-    if (response.data.success === true) {
-      ClickCounter.value = response.data.current_balance;
-    }
-    console.log(response.data);
-  });
-
-}
-
 </script>
 
 <template>
   <div class="grid_container">
     <div class="side_container">
-      <button @click="upgrade('click')" class="side_button" title="Increases your click x2">Bablo per click</button>
-      <button @click="upgrade('auto')" class="side_button" title="Auto click every 10 second">Auto click</button>
-      <button @click="upgrade('crypto')" class="side_button" title="Gives 1/10 of your current balance every 5 minutes">Crypto investment</button>
+      <button @click="upgrade('click')" class="side_button" title="click">
+        Bablo per click<br>
+        Level: {{ Upgrades.click.level }}<br>
+        Cost: {{ Upgrades.click.cost }}
+      </button>
+      <button @click="upgrade('auto')" class="side_button" title="auto">
+        Auto click<br>
+        Level: {{ Upgrades.auto.level }}<br>
+        Cost: {{ Upgrades.auto.cost }}
+      </button>
+      <button @click="upgrade('crypto')" class="side_button" title="crypto">
+        Crypto investment<br>
+        Level: {{ Upgrades.crypto.level }}<br>
+        Cost: {{ Upgrades.crypto.cost }}
+      </button>
     </div>
     <div class="counter_container">
       <p class="counter">Bablo: {{ ClickCounter }}</p>
@@ -67,42 +109,65 @@ function upgrade(upgrade) {
       </button>
     </div>
     <div class="side_container">
-      <button @click="upgrade('manager')" class="side_button" title="Gives 100 bablo every second">Manager</button>
-      <button @click="upgrade('bank')" class="side_button" title="Gives 1k bablo every second">Bank</button>
-      <button @click="upgrade('factory')" class="side_button" title="Gives 10k bablo every second">Factory</button>
+      <button @click="upgrade('manager')" class="side_button" title="manager">
+        Manager<br>
+        Level: {{ Upgrades.manager.level }}<br>
+        Cost: {{ Upgrades.manager.cost }}
+      </button>
+      <button @click="upgrade('bank')" class="side_button" title="bank">
+        Bank<br>
+        Level: {{ Upgrades.bank.level }}<br>
+        Cost: {{ Upgrades.bank.cost }}
+      </button>
+      <button @click="upgrade('factory')" class="side_button" title="factory">
+        Factory<br>
+        Level: {{ Upgrades.factory.level }}<br>
+        Cost: {{ Upgrades.factory.cost }}
+      </button>
     </div>
   </div>
 </template>
 
 <style scoped>
-
-.grid_container{
+.grid_container {
   display: grid;
   grid-template-columns: 1fr 350px 1fr;
   gap: 100px;
 }
 
-.side_container{
+.side_container {
   display: grid;
-  grid-template-rows: repeat(3, 40px);
+  grid-template-rows: repeat(3, auto);
   justify-content: center;
   align-content: center;
-  gap: 100px;
+  gap: 20px;
 }
 
-.side_button{
+.side_button {
   width: 200px;
+  text-align: center;
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  background-color: #4CAF50;
+  color: white;
+  font-size: 16px;
+  transition: background-color 0.3s, transform 0.2s;
+  cursor: pointer;
 }
 
-.counter{
+.side_button:hover {
+  background-color: #45a049;
+  transform: scale(1.05);
+}
+
+.counter {
   text-align: center;
   font-size: 30px;
-  font-style: normal;
   font-weight: 400;
-  line-height: normal;
 }
 
-.counter_container{
+.counter_container {
   width: 350px;
 }
 
@@ -115,6 +180,8 @@ function upgrade(upgrade) {
   padding: 0;
   cursor: pointer;
   position: relative;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 </style>
