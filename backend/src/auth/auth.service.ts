@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import {HttpException, Injectable} from '@nestjs/common';
 import {DatabaseService} from "../database/database.service";
 import {JwtService} from "@nestjs/jwt";
 

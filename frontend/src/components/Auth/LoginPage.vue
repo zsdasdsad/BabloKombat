@@ -1,32 +1,55 @@
 <script setup lang="ts">
-import axios from 'axios';
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
+  import axios from 'axios';
+  import {onMounted, ref} from 'vue';
+  import { useRouter } from 'vue-router';
 
-const username = ref('');
-const password = ref('');
-const router = useRouter();
+  const username = ref('');
+  const password = ref('');
+  const router = useRouter();
 
-function handleLogin() {
-  console.log('Logging in:', { username: username.value, password: password.value });
-
-  axios.post('http://localhost:3000/auth/login', {
-    username: username.value,
-    password: password.value,
-  })
-    .then((response) => {
-      if (response.data.success) {
-        router.push('/game');
-        const UserId = response.data.userId;
-        localStorage.setItem('UserId', UserId);
-      } else {
-        console.error('Login failed:', response.data.message);
-      }
+  function handleLogin() {
+    axios.post('http://localhost:3000/auth/login', {
+      username: username.value,
+      password: password.value,
     })
-    .catch((error) => {
-      console.error('Error during login:', error);
-    });
-}
+        .then((response) => {
+          if (response.data.success) {
+            router.push('/game');
+            const UserId = response.data.userId;
+            const token = response.data.token;
+            localStorage.setItem('UserId', UserId);
+            localStorage.setItem('token', token);
+            console.log(response.data);
+          } else {
+            console.error('Login failed:', response.data.message);
+          }
+        })
+        .catch((error) => {
+          console.error('Error during login:', error);
+        });
+  }
+
+  async function fetchData() {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      return;
+    }
+    try {
+      const response = await axios.get('http://localhost:3000/auth/status', {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+      localStorage.setItem('UserId', response.data.userId);
+      router.push('/game');
+
+    } catch (error) {
+      return error;
+    }
+  }
+
+
+  onMounted(() => {
+    fetchData();
+  });
 </script>
 
 <template>

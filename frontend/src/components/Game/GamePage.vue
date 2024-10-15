@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, computed } from 'vue';
 import axios from "axios";
+import { useRouter } from "vue-router";
 
 const UserId = localStorage.getItem('UserId');
 const ClickCounter = ref(0);
@@ -13,6 +14,7 @@ const Upgrades = ref({
   factory: { level: 0, cost: 1000000 },
 });
 const image = ref(new URL('../../assets/Default.png', import.meta.url).href);
+const router = useRouter();
 
 function upgradeCostCalculate(upgrade) {
   return Upgrades.value[upgrade].cost * (1 + Upgrades.value[upgrade].level * 0.2);
@@ -72,6 +74,12 @@ function upgrade(upgrade) {
   });
 }
 
+function logout() {
+  localStorage.removeItem('UserId');
+  localStorage.removeItem('token');
+  router.push('/login');
+}
+
 onMounted(() => {
   document.body.style.overflow = 'hidden';
 });
@@ -124,9 +132,11 @@ onUnmounted(() => {
         Level: {{ Upgrades.factory.level }}<br>
         Cost: {{ Upgrades.factory.cost }}
       </button>
+      <button @click="logout" class="logout_button">Logout</button>
     </div>
   </div>
 </template>
+
 
 <style scoped>
 .grid_container {
@@ -184,4 +194,21 @@ onUnmounted(() => {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
+.logout_button {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  padding: 10px 20px;
+  background-color: #f44336;
+  color: white;
+  font-size: 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.logout_button:hover {
+  background-color: #e53935;
+  transform: scale(1.05);
+}
 </style>
