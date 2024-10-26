@@ -63,6 +63,7 @@ export class DatabaseController {
         id: userId,
       },
     });
+    console.log(body)
 
     if (!user) {
       return { success: false, message: 'User not found' };

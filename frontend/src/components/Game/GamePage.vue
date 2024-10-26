@@ -1,7 +1,10 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, computed } from 'vue';
+import {ref, onMounted, onUnmounted, watch} from 'vue';
 import axios from "axios";
 import { useRouter } from "vue-router";
+import { stopAutoClick, startAutoClick } from "./Upgrades/auto.ts";
+import { startCrypto, stopCrypto } from "./Upgrades/crypto.ts";
+
 
 const UserId = localStorage.getItem('UserId');
 const ClickCounter = ref(0);
@@ -53,7 +56,7 @@ function handleClick() {
   setTimeout(() => {
     image.value = new URL('../../assets/Default.png', import.meta.url).href;
   }, 100);
-  ClickCounter.value++;
+  ClickCounter.value += Upgrades.value.click.level+1;
 }
 
 function upgrade(upgrade) {
@@ -74,6 +77,11 @@ function upgrade(upgrade) {
   });
 }
 
+function multiplyBalance(multiplier: number) {
+  ClickCounter.value *= multiplier;
+}
+
+
 function logout() {
   localStorage.removeItem('UserId');
   localStorage.removeItem('token');
@@ -82,10 +90,23 @@ function logout() {
 
 onMounted(() => {
   document.body.style.overflow = 'hidden';
+  startAutoClick(Upgrades.value.auto.level, handleClick)
+  startCrypto(Upgrades.value.crypto.level, multiplyBalance)
 });
 
 onUnmounted(() => {
   document.body.style.overflow = '';
+  stopAutoClick()
+  stopCrypto()
+});
+
+watch(() => Upgrades.value.auto.level, (newLevel) => {
+  stopAutoClick();
+  startAutoClick(newLevel, handleClick);
+});
+watch(() => Upgrades.value.crypto.level, (newLevel) => {
+  stopCrypto();
+  startCrypto(newLevel, multiplyBalance);
 });
 </script>
 
